@@ -57,7 +57,7 @@ foreach ($admissionsDecision->sarappd as $sarappd) {}
 ```
 
 ### POST application decision
-Use the `post` method to send a decision to Banner with the following required parameters: `$studentId` (UIN), `$termCode`, `$applNo`, `$apdcDate`, `$apdcCode`. Can optionally set an `$env` parameter as well. Upon a successful response, data will be available in four properties `$saradap`, `$sarappd`, `$sovlcur`, and `$sovlfos`. All are arrays of their respective data sets.
+Use the `post` method to send a decision to Banner with the following required parameters: `$studentId` (UIN), `$termCode`, `$applNo`, `$apdcDate`, `$apdcCode`. Can optionally set an `$env` parameter as well. Upon a successful response, data will be available in four properties `$saradap`, `$sarappd`, `$sovlcur`, and `$sovlfos`. All are arrays of their respective data sets. Refer to table `STVAPDC` for list of decision codes. 
 ```
 $admissionsDecision = new AdmissionsDecisionProcessing($apiUrl, $subscriptionKey);
 
