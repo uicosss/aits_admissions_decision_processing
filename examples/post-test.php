@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Updated cli-test example
+ * POST example
  *
  * @author Dan Paz-Horta, Jeremy Jones
  */
@@ -22,7 +22,22 @@ try {
 
     // Term Code
     if (empty($argv[4])) {
-        throw new Exception("Error: Specify Term Code as the 3rd argument.");
+        throw new Exception("Error: Specify Term Code as the 4th argument.");
+    }
+
+    // Application Number
+    if (empty($argv[5])) {
+        throw new Exception("Error: Specify Application Number as the 5th argument.");
+    }
+
+    // Decision Date
+    if (empty($argv[5])) {
+        throw new Exception("Error: Specify Decision Date as the 6th argument.");
+    }
+
+    // Decision Code
+    if (empty($argv[6])) {
+        throw new Exception("Error: Specify Decision Code as the 7th argument.");
     }
 
     // API URL
@@ -40,11 +55,14 @@ try {
 
     $studentId = trim($argv[3]);
     $termCode = trim($argv[4]);
+    $applNo = trim($argv[5]);
+    $decisionDate = trim($argv[6]);
+    $decisionCode = trim($argv[7]);
 
     $admissionsDecision = new AdmissionsDecisionProcessing($apiUrl, $subscriptionKey);
 
     // Get the results of a call
-    if ($admissionsDecision->get($studentId, $termCode)) {
+    if ($admissionsDecision->post($studentId, $termCode, $applNo, $decisionDate, $decisionCode)) {
         echo 'Success' . PHP_EOL;
     } else {
         echo 'Error' . PHP_EOL;

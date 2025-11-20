@@ -22,24 +22,24 @@ use GuzzleHttp\Exception\ServerException;
 class AdmissionsDecisionProcessing
 {
     /**
-     * @var Saradap|null
+     * @var Saradap[]
      */
-    public ?Saradap $saradap = null;
+    public array $saradap = [];
 
     /**
-     * @var Sarappd|null
+     * @var Sarappd[]
      */
-    public ?Sarappd $sarappd = null;
+    public array $sarappd = [];
 
     /**
-     * @var Sovlcur|null
+     * @var Sovlcur[]
      */
-    public ?Sovlcur $sovlcur = null;
+    public array $sovlcur = [];
 
     /**
-     * @var Sovlfos|null
+     * @var Sovlfos[]
      */
-    public ?Sovlfos $sovlfos = null;
+    public array $sovlfos = [];
     
     /**
      * @var string
@@ -142,32 +142,13 @@ class AdmissionsDecisionProcessing
                 throw new Exception('AITS API response was not valid JSON');
             }
 
-            $this->saradap = new Saradap();
-            $this->saradap->setReqDocInd($this->json[0]->SARADAP[0]->reqDocInd);
-            $this->saradap->setAdmtCode($this->json[0]->SARADAP[0]->admtCode);
-            $this->saradap->setApplDate($this->json[0]->SARADAP[0]->applDate);
-            $this->saradap->setApplNo($this->json[0]->SARADAP[0]->applNo);
-            $this->saradap->setApstCode($this->json[0]->SARADAP[0]->apstCode);
-            $this->saradap->setResdCode($this->json[0]->SARADAP[0]->resdCode);
-            $this->saradap->setStypCode($this->json[0]->SARADAP[0]->stypCode);
-            $this->saradap->setTermCodeEntry($this->json[0]->SARADAP[0]->termCodeEntry);
-            $this->saradap->setSarappdApdcCode($this->json[0]->SARADAP[0]->sarappdApdcCode);
-            $this->saradap->setStvadmtDesc($this->json[0]->SARADAP[0]->stvadmtDesc);
-            $this->saradap->setStvapdcDesc($this->json[0]->SARADAP[0]->stvapdcDesc);
-            $this->saradap->setStvapstDesc($this->json[0]->SARADAP[0]->stvapstDesc);
-            $this->saradap->setStvresdDesc($this->json[0]->SARADAP[0]->stvresdDesc);
-            $this->saradap->setStvstypDesc($this->json[0]->SARADAP[0]->stvstypDesc);
+            foreach ($this->json[0]->SARADAP as $saradap) {
+                $this->saradap[] = Saradap::buildFromJson($saradap);
+            }
 
-            $this->sarappd = new Sarappd();
-            $this->sarappd->setMaintDesc($this->json[0]->SARAPPD[0]->maintDesc);
-            $this->sarappd->setApdcCode($this->json[0]->SARAPPD[0]->apdcCode);
-            $this->sarappd->setApdcDate($this->json[0]->SARAPPD[0]->apdcDate);
-            $this->sarappd->setMaintInd($this->json[0]->SARAPPD[0]->maintInd);
-            $this->sarappd->setUser($this->json[0]->SARAPPD[0]->user);
-            $this->sarappd->setStvapdcApplInact($this->json[0]->SARAPPD[0]->stvapdcApplInact);
-            $this->sarappd->setStvapdcDesc($this->json[0]->SARAPPD[0]->stvapdcDesc);
-            $this->sarappd->setStvapdcRejectInd($this->json[0]->SARAPPD[0]->stvapdcRejectInd);
-            $this->sarappd->setStvapdcSignfInd($this->json[0]->SARAPPD[0]->stvapdcSignfInd);
+            foreach ($this->json[0]->SARAPPD as $sarappd) {
+                $this->sarappd[] = Sarappd::buildFromJson($sarappd);
+            }
 
             return $this->httpCode === 200;
 
@@ -207,7 +188,7 @@ class AdmissionsDecisionProcessing
             }
 
             $apdcDateObj = Carbon::parse($apdcDate);
-            if (!empty($apdcDate) || !$apdcDateObj instanceof Carbon) {
+            if (empty($apdcDate) || !$apdcDateObj instanceof Carbon) {
                 throw new Exception('Decision date must be a valid datetime string');
             }
 
@@ -238,7 +219,6 @@ class AdmissionsDecisionProcessing
 
             $client = new Client();
             $request = new Request('POST', $apiFullUrl, $requestHeaders, $requestBody);
-
             $response = $client->send($request);
 
             $this->httpCode = $response->getStatusCode();
@@ -249,10 +229,21 @@ class AdmissionsDecisionProcessing
                 throw new Exception('AITS API response was not valid JSON');
             }
 
-            $this->saradap = Saradap::buildFromJson($this->json[0]->SARADAP[0]);
-            $this->sarappd = Sarappd::buildFromJson($this->json[0]->SARAPPD[0]);
-            $this->sovlcur = Sovlcur::buildFromJson($this->json[0]->SOVLCUR[0]);
-            $this->sovlfos = Sovlfos::buildFromJson($this->json[0]->SOVLFOS[0]);
+            foreach ($this->json[0]->SARADAP as $saradap) {
+                $this->saradap[] = Saradap::buildFromJson($saradap);
+            }
+
+            foreach ($this->json[0]->SARAPPD as $sarappd) {
+                $this->sarappd[] = Sarappd::buildFromJson($sarappd);
+            }
+
+            foreach ($this->json[0]->SOVLCUR as $sovlcur) {
+                $this->sovlcur[] = Sovlcur::buildFromJson($sovlcur);
+            }
+
+            foreach ($this->json[0]->SOVLFOS as $sovlfos) {
+                $this->sovlfos[] = Sovlfos::buildFromJson($sovlfos);
+            }
 
             return $this->httpCode === 200;
 
@@ -267,17 +258,17 @@ class AdmissionsDecisionProcessing
     }
 
     /**
-     * @return Saradap|null
+     * @return Saradap[]
      */
-    public function getSaradap(): ?Saradap
+    public function getSaradap(): array
     {
         return $this->saradap;
     }
 
     /**
-     * @return Sarappd|null
+     * @return Sarappd[]
      */
-    public function getSarappd(): ?Sarappd
+    public function getSarappd(): array
     {
         return $this->sarappd;
     }
