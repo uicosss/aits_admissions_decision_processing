@@ -66,8 +66,14 @@ class Sarappd
         $sarappd->setUser($jsonObject->user);
         $sarappd->setStvapdcApplInact($jsonObject->stvapdcApplInact);
         $sarappd->setStvapdcDesc($jsonObject->stvapdcDesc);
-        $sarappd->setStvapdcRejectInd($jsonObject->stvapdcRejectInd);
-        $sarappd->setStvapdcSignfInd($jsonObject->stvapdcSignfInd);
+
+        if (isset($jsonObject->stvapdcRejectInd)) {
+            $sarappd->setStvapdcRejectInd($jsonObject->stvapdcRejectInd);
+        }
+
+        if (isset($jsonObject->stvapdcSignfInd)) {
+            $sarappd->setStvapdcSignfInd($jsonObject->stvapdcSignfInd);
+        }
 
         return $sarappd;
     }
