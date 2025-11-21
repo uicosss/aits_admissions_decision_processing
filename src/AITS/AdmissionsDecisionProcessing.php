@@ -198,18 +198,17 @@ class AdmissionsDecisionProcessing
 
             $requestHeaders = [
                 'Cache-Control' => 'no-cache',
-                'Ocp-Apim-Subscription-Key' => $this->subscriptionKey
+                'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
+                'Content-Type' => 'application/json',
             ];
 
-            $requestBody = [
-                'json' => [
-                    'id' => $studentId,
-                    'keyblocTermCode' => $termCode,
-                    'applNo' => $applNo,
-                    'apdcDate' => $apdcDateObj->format('Y-m-d'),
-                    'apdcCode' => $apdcCode,
-                ]
-            ];
+            $requestBody = json_encode([
+                'id' => $studentId,
+                'keyblocTermCode' => $termCode,
+                'applNo' => $applNo,
+                'apdcDate' => $apdcDateObj->format('Y-m-d'),
+                'apdcCode' => $apdcCode,
+            ]);
 
             $apiFullUrl = $this->apiUrl . 'create';
 
@@ -274,17 +273,17 @@ class AdmissionsDecisionProcessing
     }
 
     /**
-     * @return Sovlcur|null
+     * @return Sovlcur[]
      */
-    public function getSovlcur(): ?Sovlcur
+    public function getSovlcur(): array
     {
         return $this->sovlcur;
     }
 
     /**
-     * @return Sovlfos|null
+     * @return Sovlfos[]
      */
-    public function getSovlfos(): ?Sovlfos
+    public function getSovlfos(): array
     {
         return $this->sovlfos;
     }
