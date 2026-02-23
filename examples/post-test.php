@@ -8,61 +8,35 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use GuzzleHttp\Exception\GuzzleException;
 use Uicosss\AITS\AdmissionsDecisionProcessing;
 
 try {
-    print_r($argv);
-    echo PHP_EOL;
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+    $dotenv->load();
 
     // ID
-    if (empty($argv[3])) {
-        throw new Exception("Error: Specify UIN as the 3rd argument.");
-    }
+    echo 'Student ID (UIN): ';
+    $studentId = trim(fgets(STDIN));
 
     // Term Code
-    if (empty($argv[4])) {
-        throw new Exception("Error: Specify Term Code as the 4th argument.");
-    }
+    echo 'Term Code: ';
+    $termCode = trim(fgets(STDIN));
 
     // Application Number
-    if (empty($argv[5])) {
-        throw new Exception("Error: Specify Application Number as the 5th argument.");
-    }
-
-    // Decision Date
-    if (empty($argv[5])) {
-        throw new Exception("Error: Specify Decision Date as the 6th argument.");
-    }
+    echo 'Application Number: ';
+    $applNo = trim(fgets(STDIN));
 
     // Decision Code
-    if (empty($argv[6])) {
-        throw new Exception("Error: Specify Decision Code as the 7th argument.");
-    }
+    echo 'Decision Code: ';
+    $decisionCode = trim(fgets(STDIN));
 
-    // API URL
-    if (empty($argv[1])) {
-        throw new Exception("Error: Specify API URL as the 1st argument.");
-    }
-
-    // Subscription Key from Azure Gateway API
-    if (empty($argv[2])) {
-        throw new Exception("Error: Specify Subscription Key from AITS Azure API as the 2nd argument.");
-    }
-
-    $apiUrl = trim($argv[1]);
-    $subscriptionKey = trim($argv[2]);
-
-    $studentId = trim($argv[3]);
-    $termCode = trim($argv[4]);
-    $applNo = trim($argv[5]);
-    $decisionDate = trim($argv[6]);
-    $decisionCode = trim($argv[7]);
+    $apiUrl = trim($_ENV['AITS_AZURE_ADMISSIONS_DECISION_PROCESSING_API_URL']);
+    $subscriptionKey = trim($_ENV['AITS_SUBSCRIPTION_KEY']);
 
     $admissionsDecision = new AdmissionsDecisionProcessing($apiUrl, $subscriptionKey);
 
     // Get the results of a call
-    if ($admissionsDecision->post($studentId, $termCode, $applNo, $decisionDate, $decisionCode)) {
+    if ($admissionsDecision->post($studentId, $termCode, $applNo, $decisionCode)) {
         echo 'Success' . PHP_EOL;
     } else {
         echo 'Error' . PHP_EOL;
@@ -73,11 +47,11 @@ try {
     echo PHP_EOL;
 
     // Get the raw response
-    echo $admissionsDecision->getResponse(true) . PHP_EOL;
+    echo $admissionsDecision->getResponseBody(true) . PHP_EOL;
 
     echo PHP_EOL;
 
-} catch (GuzzleException|Exception $e) {
+} catch (Exception $e) {
     echo 'Exception: ';
     print_r($e->getMessage());
     echo PHP_EOL;
