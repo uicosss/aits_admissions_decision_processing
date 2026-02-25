@@ -32,35 +32,15 @@ class AdmissionsDecisionProcessing
     private string $subscriptionKey;
 
     /**
-     * @var string|null
-     */
-    private ?string $rawBody;
-
-    /**
-     * @var mixed
-     */
-    private mixed $jsonBody;
-
-    /**
-     * @var int
-     */
-    private int $httpCode = 500;
-
-    /**
-     * @var array
-     */
-    private array $errors = [];
-
-    /**
      * Sets the two necessary variables for the AITS API call to operate successfully
      *
-     * @param string $apiUrl AITS API URL without leading "https:" or trailing "/"
+     * @param string $baseUrl AITS API URL without leading "https:" or trailing "/"
      * @param string $subscriptionKey AITS Subscription Key pulled from the necessary profile
      * @throws Exception
      */
-    public function __construct(string $apiUrl, string $subscriptionKey)
+    public function __construct(string $baseUrl, string $subscriptionKey)
     {
-        $this->setApiUrl($apiUrl);
+        $this->setApiUrl($baseUrl);
         $this->setSubscriptionKey($subscriptionKey);
     }
 
@@ -73,7 +53,7 @@ class AdmissionsDecisionProcessing
      * @return mixed
      * @throws Exception
      */
-    public function post(mixed $studentId, mixed $termCode, mixed $applNo, mixed $decisionCode, $env = null): mixed
+    public function create(mixed $studentId, mixed $termCode, mixed $applNo, mixed $decisionCode, $env = null): mixed
     {
         try {
             if (empty($studentId) || !is_numeric($studentId)) {
@@ -109,64 +89,43 @@ class AdmissionsDecisionProcessing
                 ],
             ]);
 
-            $apiFullUrl = $this->apiUrl;
+            $apiFullUrl = $this->apiUrl . 'create-decision' . ($env !== null ? '?env=' . $env : '');
 
-            if ($env !== null) {
-                $apiFullUrl .= '?env=' . $env;
-            }
+            return $this->sendRequest('POST', $apiFullUrl, $requestHeaders, $requestBody);
 
-            $client = new Client();
-            $request = new Request('POST', $apiFullUrl, $requestHeaders, $requestBody);
-            $response = $client->send($request);
-
-            $this->httpCode = $response->getStatusCode();
-            $this->rawBody = $response->getBody();
-            $this->jsonBody = json_decode($response->getBody());
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new Exception('AITS API response was not valid JSON');
-            }
-
-            if ($this->httpCode !== 200) {
-                $this->errors = !empty($this->jsonBody->errors) ? $this->jsonBody->errors : [];
-                throw new Exception('AITS API response code: ' . $this->httpCode . '. Check errors for more details.');
-            }
-
-            return $this->jsonBody;
-
-        } catch (ClientException $e) {
-            $this->httpCode = $e->getCode();
-            $json = json_decode($e->getResponse()->getBody());
-            $error = $json->errors[0]->message . ' ' . $json->errors[0]->description;
-            throw new Exception(json_last_error() == JSON_ERROR_NONE ? $error : 'An error as occurred');
-        } catch (ServerException|BadResponseException|GuzzleException|Exception $e) {
+        } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
     }
 
     /**
-     * @param bool $raw Boolean flag for whether to return raw JSON string or decoded JSON array
-     * @return mixed Will return the JSON string or decoded JSON array
+     * @param $method
+     * @param $url
+     * @param $headers
+     * @param $jsonBody
+     * @return AdmissionsDecisionResponse
+     * @throws Exception
      */
-    public function getResponseBody(bool $raw = false): mixed
+    private function sendRequest($method, $url, $headers, $jsonBody): AdmissionsDecisionResponse
     {
-        return ($raw) ? $this->rawBody : $this->jsonBody;
-    }
+        try {
+            $client = new Client();
+            $request = new Request($method, $url, $headers, $jsonBody);
+            $response = $client->send($request);
 
-    /**
-     * @return int
-     */
-    public function getHttpResponseCode(): int
-    {
-        return $this->httpCode;
-    }
+            return new AdmissionsDecisionResponse($response);
+        } catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                $json = json_decode($e->getResponse()->getBody());
+                $error = json_last_error() === JSON_ERROR_NONE ? $json->errors[0]->message . ' ' . $json->errors[0]->description : 'An error as occurred';
+            } else {
+                $error = $e->getMessage();
+            }
 
-    /**
-     * @return array
-     */
-    public function getResponseErrors(): array
-    {
-        return $this->errors;
+            throw new Exception($error);
+        } catch (ServerException|BadResponseException|GuzzleException|Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 
     /**
@@ -180,7 +139,6 @@ class AdmissionsDecisionProcessing
         }
 
         $trimmedApiUrl = trim($apiUrl);
-
         $this->apiUrl = (str_ends_with($trimmedApiUrl, '/')) ? $trimmedApiUrl : $trimmedApiUrl . '/';
     }
 

@@ -34,20 +34,19 @@ try {
     $subscriptionKey = trim($_ENV['AITS_SUBSCRIPTION_KEY']);
 
     $admissionsDecision = new AdmissionsDecisionProcessing($apiUrl, $subscriptionKey);
+    $admissionsDecisionResponse = $admissionsDecision->create($studentId, $termCode, $applNo, $decisionCode);
 
     // Get the results of a call
-    if ($admissionsDecision->post($studentId, $termCode, $applNo, $decisionCode)) {
+    if ($admissionsDecisionResponse->getResponseCode() === 200) {
         echo 'Success' . PHP_EOL;
     } else {
-        echo 'Error' . PHP_EOL;
+        foreach ($admissionsDecisionResponse->getResponseErrors() as $error) {
+            echo $error . PHP_EOL;
+        }
     }
 
-    echo "HTTP Code: [" . $admissionsDecision->getHttpResponseCode() . "]" . PHP_EOL;
-
-    echo PHP_EOL;
-
     // Get the raw response
-    echo $admissionsDecision->getResponseBody(true) . PHP_EOL;
+    echo $admissionsDecisionResponse->getResponseBody(true) . PHP_EOL;
 
     echo PHP_EOL;
 
