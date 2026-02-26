@@ -10,7 +10,6 @@
 
 namespace Uicosss\AITS;
 
-use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
@@ -50,10 +49,10 @@ class AdmissionsDecisionProcessing
      * @param mixed $applNo
      * @param mixed $decisionCode
      * @param $env
-     * @return mixed
+     * @return AdmissionsDecisionResponse
      * @throws Exception
      */
-    public function create(mixed $studentId, mixed $termCode, mixed $applNo, mixed $decisionCode, $env = null): mixed
+    public function create(mixed $studentId, mixed $termCode, mixed $applNo, mixed $decisionCode, $env = null): AdmissionsDecisionResponse
     {
         try {
             if (empty($studentId) || !is_numeric($studentId)) {
@@ -117,7 +116,9 @@ class AdmissionsDecisionProcessing
         } catch (ClientException $e) {
             if ($e->hasResponse()) {
                 $json = json_decode($e->getResponse()->getBody());
-                $error = json_last_error() === JSON_ERROR_NONE ? $json->errors[0]->message . ' ' . $json->errors[0]->description : 'An error as occurred';
+                $error = json_last_error() === JSON_ERROR_NONE && !empty($json->errors)
+                    ? $json->errors[0]->message . ' ' . $json->errors[0]->description
+                    : $e->getMessage();
             } else {
                 $error = $e->getMessage();
             }

@@ -37,7 +37,7 @@ try {
     $admissionsDecisionResponse = $admissionsDecision->create($studentId, $termCode, $applNo, $decisionCode);
 
     // Get the results of a call
-    if ($admissionsDecisionResponse->getResponseCode() === 200) {
+    if ($admissionsDecisionResponse->isSuccess()) {
         echo 'Success' . PHP_EOL;
     } else {
         foreach ($admissionsDecisionResponse->getResponseErrors() as $error) {

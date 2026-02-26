@@ -7,6 +7,11 @@ use Psr\Http\Message\ResponseInterface;
 class AdmissionsDecisionResponse
 {
     /**
+     * @var bool
+     */
+    private bool $success = false;
+
+    /**
      * @var string
      */
     private string $rawBody;
@@ -75,6 +80,14 @@ class AdmissionsDecisionResponse
     }
 
     /**
+     * @return bool
+     */
+    public function isSuccess(): bool
+    {
+        return $this->success;
+    }
+
+    /**
      * @param $body
      * @return void
      */
@@ -108,5 +121,9 @@ class AdmissionsDecisionResponse
     public function setResponseCode(int $responseCode): void
     {
         $this->responseCode = $responseCode;
+
+        if ($this->responseCode === 200) {
+            $this->success = true;
+        }
     }
 }
