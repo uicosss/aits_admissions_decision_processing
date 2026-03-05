@@ -84,7 +84,7 @@ class AdmissionsDecisionProcessing
                 ],
                 'applicationNumber' => $applNo,
                 'decision' => [
-                    'code' => $decisionCode
+                    'code' => (string) $decisionCode
                 ],
             ]);
 
@@ -114,15 +114,7 @@ class AdmissionsDecisionProcessing
 
             return new AdmissionsDecisionResponse($response);
         } catch (ClientException $e) {
-            if ($e->hasResponse()) {
-                $json = json_decode($e->getResponse()->getBody());
-                $error = json_last_error() === JSON_ERROR_NONE && !empty($json->errors)
-                    ? $json->errors[0]->message . ' ' . $json->errors[0]->description
-                    : $e->getMessage();
-            } else {
-                $error = $e->getMessage();
-            }
-
+            $error = $e->getMessage();
             throw new Exception($error);
         } catch (ServerException|BadResponseException|GuzzleException|Exception $e) {
             throw new Exception($e->getMessage());
