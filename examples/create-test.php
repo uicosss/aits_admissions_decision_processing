@@ -8,6 +8,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use GuzzleHttp\Exception\GuzzleException;
 use Uicosss\AITS\AdmissionsDecisionProcessing;
 
 try {
@@ -40,6 +41,7 @@ try {
     if ($admissionsDecisionResponse->isSuccess()) {
         echo 'Success' . PHP_EOL;
     } else {
+        echo 'Status code: ' . $admissionsDecisionResponse->getResponseCode() . PHP_EOL;
         foreach ($admissionsDecisionResponse->getResponseErrors() as $error) {
             echo $error . PHP_EOL;
         }
@@ -50,10 +52,9 @@ try {
 
     echo PHP_EOL;
 
-} catch (Exception $e) {
+} catch (GuzzleException|Exception $e) {
     echo 'Exception: ';
     print_r($e->getMessage());
     echo PHP_EOL;
     echo PHP_EOL;
-
 }
