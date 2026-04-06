@@ -5,8 +5,7 @@
     "type": "library",
     "require": {
         "php": "^8.2",
-        "guzzlehttp/guzzle": "^7.10",
-        "nesbot/carbon": "^3.10"
+        "guzzlehttp/guzzle": "^7.10"
     },
     "require-dev": {
         "vlucas/phpdotenv": "^5.6"

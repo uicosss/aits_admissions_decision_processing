@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * University of Illinois - AITS Admissions Decision Processing
+ * API Wrapper
+ *
+ * Response class for any API calls made to the Banner API endpoints.
+ *
+ * @author Jeremy Jones
+ * @license MIT
+ */
+
 namespace Uicosss\AITS;
 
 use Psr\Http\Message\ResponseInterface;
@@ -19,7 +29,7 @@ class AdmissionsDecisionResponse
     /**
      * @var mixed
      */
-    private mixed $jsonBody;
+    private mixed $jsonBody = null;
 
     /**
      * @var int
@@ -37,9 +47,9 @@ class AdmissionsDecisionResponse
     public function __construct(ResponseInterface $response)
     {
         $this->setResponseCode($response->getStatusCode());
-        $this->setBody($response->getBody());
+        $this->setBody((string) $response->getBody());
 
-        $json = json_decode($response->getBody());
+        $json = json_decode($this->rawBody);
 
         if (json_last_error() === JSON_ERROR_NONE) {
             $this->setJson($json);
@@ -51,6 +61,11 @@ class AdmissionsDecisionResponse
                     $this->setError($error);
                 }
             }
+        }
+
+        // Successful calls determined by correct status code and absence of errors
+        if (($this->responseCode === 200 || $this->responseCode === 201) && empty($this->errors)) {
+            $this->success = true;
         }
     }
 
@@ -88,10 +103,10 @@ class AdmissionsDecisionResponse
     }
 
     /**
-     * @param $body
+     * @param string $body
      * @return void
      */
-    public function setBody($body): void
+    private function setBody(string $body): void
     {
         $this->rawBody = $body;
     }
@@ -100,7 +115,7 @@ class AdmissionsDecisionResponse
      * @param $json
      * @return void
      */
-    public function setJson($json): void
+    private function setJson($json): void
     {
         $this->jsonBody = $json;
     }
@@ -109,7 +124,7 @@ class AdmissionsDecisionResponse
      * @param string $error
      * @return void
      */
-    public function setError(string $error): void
+    private function setError(string $error): void
     {
         $this->errors[] = $error;
     }
@@ -118,12 +133,8 @@ class AdmissionsDecisionResponse
      * @param int $responseCode
      * @return void
      */
-    public function setResponseCode(int $responseCode): void
+    private function setResponseCode(int $responseCode): void
     {
         $this->responseCode = $responseCode;
-
-        if ($this->responseCode === 200) {
-            $this->success = true;
-        }
     }
 }

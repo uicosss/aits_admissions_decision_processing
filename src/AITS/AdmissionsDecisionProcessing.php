@@ -4,6 +4,9 @@
  * University of Illinois - AITS Admissions Decision Processing
  * API Wrapper
  *
+ * Will handle all calls to Banner API endpoints. Currently:
+ * - POST create-decision
+ *
  * @author Jeremy Jones
  * @license MIT
  */
@@ -13,13 +16,17 @@ namespace Uicosss\AITS;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\ServerException;
 
 class AdmissionsDecisionProcessing
 {
+    const BANNER_ENVIRONMENTS = [
+        'BANUSER',
+        'BANQA',
+        'BANDEV'
+    ];
+
     /**
      * @var string
      */
@@ -46,66 +53,62 @@ class AdmissionsDecisionProcessing
     /**
      * @param mixed $studentId
      * @param mixed $termCode
-     * @param mixed $applNo
+     * @param mixed $applicationNumber
      * @param mixed $decisionCode
-     * @param $env
+     * @param $environment
      * @return AdmissionsDecisionResponse
-     * @throws Exception
+     * @throws Exception|GuzzleException
      */
-    public function create(mixed $studentId, mixed $termCode, mixed $applNo, mixed $decisionCode, $env = null): AdmissionsDecisionResponse
+    public function create(mixed $studentId, mixed $termCode, mixed $applicationNumber, mixed $decisionCode, $environment = null): AdmissionsDecisionResponse
     {
-        try {
-            if (empty($studentId) || !is_numeric($studentId)) {
-                throw new Exception('ID cannot be empty or non numeric');
-            }
-
-            if (empty($termCode) || !is_numeric($termCode)) {
-                throw new Exception('Term code cannot be empty or non numeric');
-            }
-
-            if (empty($applNo) || !is_numeric($applNo)) {
-                throw new Exception('Application number cannot be empty or non numeric');
-            }
-
-            if (empty($decisionCode) || !is_numeric($decisionCode)) {
-                throw new Exception('Decision code cannot be empty or non numeric');
-            }
-
-            $requestHeaders = [
-                'Cache-Control' => 'no-cache',
-                'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
-                'Content-Type' => 'application/json',
-            ];
-
-            $requestBody = json_encode([
-                'ownerId' => $studentId,
-                'term' => [
-                    'code' => $termCode
-                ],
-                'applicationNumber' => $applNo,
-                'decision' => [
-                    'code' => (string) $decisionCode
-                ],
-            ]);
-
-            $apiFullUrl = $this->apiUrl . 'create-decision' . ($env !== null ? '?env=' . $env : '');
-
-            return $this->sendRequest('POST', $apiFullUrl, $requestHeaders, $requestBody);
-
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        if (empty($studentId) || !is_numeric($studentId)) {
+            throw new Exception('ID cannot be empty or non numeric');
         }
+
+        if (empty($termCode) || !is_numeric($termCode)) {
+            throw new Exception('Term code cannot be empty or non numeric');
+        }
+
+        if (empty($applicationNumber) || !is_numeric($applicationNumber)) {
+            throw new Exception('Application number cannot be empty or non numeric');
+        }
+
+        if (empty($decisionCode) || !is_numeric($decisionCode)) {
+            throw new Exception('Decision code cannot be empty or non numeric');
+        }
+
+        $requestHeaders = [
+            'Cache-Control' => 'no-cache',
+            'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
+            'Content-Type' => 'application/json',
+        ];
+
+        $requestBody = json_encode([
+            'ownerId' => $studentId,
+            'term' => [
+                'code' => $termCode
+            ],
+            'applicationNumber' => $applicationNumber,
+            'decision' => [
+                'code' => (string) $decisionCode
+            ],
+        ]);
+
+        $apiFullUrl = $this->apiUrl . 'create-decision' . (in_array($environment, self::BANNER_ENVIRONMENTS) ? '?env=' . $environment : '');
+
+        return $this->sendRequest('POST', $apiFullUrl, $requestHeaders, $requestBody);
     }
 
     /**
-     * @param $method
-     * @param $url
-     * @param $headers
-     * @param $jsonBody
+     * @param string $method
+     * @param string $url
+     * @param array $headers
+     * @param string $jsonBody
      * @return AdmissionsDecisionResponse
+     * @throws GuzzleException
      * @throws Exception
      */
-    private function sendRequest($method, $url, $headers, $jsonBody): AdmissionsDecisionResponse
+    private function sendRequest(string $method, string $url, array $headers, string $jsonBody): AdmissionsDecisionResponse
     {
         try {
             $client = new Client();
@@ -113,11 +116,8 @@ class AdmissionsDecisionProcessing
             $response = $client->send($request);
 
             return new AdmissionsDecisionResponse($response);
-        } catch (ClientException $e) {
-            $error = $e->getMessage();
-            throw new Exception($error);
-        } catch (ServerException|BadResponseException|GuzzleException|Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (ClientException|Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
 
