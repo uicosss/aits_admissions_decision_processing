@@ -62,6 +62,11 @@ class AdmissionsDecisionResponse
                 }
             }
         }
+
+        // Successful calls determined by correct status code and absence of errors
+        if (($this->responseCode === 200 || $this->responseCode === 201) && empty($this->errors)) {
+            $this->success = true;
+        }
     }
 
     /**
@@ -131,9 +136,5 @@ class AdmissionsDecisionResponse
     private function setResponseCode(int $responseCode): void
     {
         $this->responseCode = $responseCode;
-
-        if ($this->responseCode === 200) {
-            $this->success = true;
-        }
     }
 }
