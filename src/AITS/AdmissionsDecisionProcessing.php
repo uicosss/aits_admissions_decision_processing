@@ -84,11 +84,11 @@ class AdmissionsDecisionProcessing
         ];
 
         $requestBody = json_encode([
-            'ownerId' => $studentId,
+            'ownerId' => (string) $studentId,
             'term' => [
-                'code' => $termCode
+                'code' => (string) $termCode
             ],
-            'applicationNumber' => $applicationNumber,
+            'applicationNumber' => (string) $applicationNumber,
             'decision' => [
                 'code' => (string) $decisionCode
             ],
