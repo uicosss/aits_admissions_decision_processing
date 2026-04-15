@@ -55,11 +55,12 @@ class AdmissionsDecisionProcessing
      * @param mixed $termCode
      * @param mixed $applicationNumber
      * @param mixed $decisionCode
-     * @param $environment
+     * @param string|null $bannerEnvironment
      * @return AdmissionsDecisionResponse
-     * @throws Exception|GuzzleException
+     * @throws GuzzleException
+     * @throws Exception
      */
-    public function create(mixed $studentId, mixed $termCode, mixed $applicationNumber, mixed $decisionCode, $environment = null): AdmissionsDecisionResponse
+    public function create(mixed $studentId, mixed $termCode, mixed $applicationNumber, mixed $decisionCode, ?string $bannerEnvironment = null): AdmissionsDecisionResponse
     {
         if (empty($studentId) || !is_numeric($studentId)) {
             throw new Exception('ID cannot be empty or non numeric');
@@ -94,9 +95,19 @@ class AdmissionsDecisionProcessing
             ],
         ]);
 
-        $apiFullUrl = $this->apiUrl . 'create-decision' . (in_array($environment, self::BANNER_ENVIRONMENTS) ? '?env=' . $environment : '');
+        $apiFullUrl = $this->apiUrl . 'create-decision' . $this->buildEnvironmentParameter($bannerEnvironment);
 
         return $this->sendRequest('POST', $apiFullUrl, $requestHeaders, $requestBody);
+    }
+
+    /**
+     * Will determine if the given Banner environment is valid and return the query parameter or empty string.
+     * @param $bannerEnvironment
+     * @return string
+     */
+    private function buildEnvironmentParameter($bannerEnvironment): string
+    {
+        return in_array($bannerEnvironment, self::BANNER_ENVIRONMENTS) ? '?env=' . $bannerEnvironment : '';
     }
 
     /**

@@ -25,7 +25,7 @@ try {
 
     // Application Number
     echo 'Application Number: ';
-    $applNo = trim(fgets(STDIN));
+    $applicationNumber = trim(fgets(STDIN));
 
     // Decision Code
     echo 'Decision Code: ';
@@ -35,7 +35,7 @@ try {
     $subscriptionKey = trim($_ENV['AITS_SUBSCRIPTION_KEY']);
 
     $admissionsDecision = new AdmissionsDecisionProcessing($apiUrl, $subscriptionKey);
-    $admissionsDecisionResponse = $admissionsDecision->create($studentId, $termCode, $applNo, $decisionCode);
+    $admissionsDecisionResponse = $admissionsDecision->create($studentId, $termCode, $applicationNumber, $decisionCode);
 
     // Get the results of a call
     if ($admissionsDecisionResponse->isSuccess()) {
