@@ -1,0 +1,26 @@
+{
+    "name": "uicosss/aits_admissions_decision_processing",
+    "description": "PHP library for using the AITS Admissions Decision Processing API.",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.10"
+    },
+    "require-dev": {
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Uicosss\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jeremy Jones",
+            "email": "jkjones3@uic.edu"
+        }
+    ],
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
